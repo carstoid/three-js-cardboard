@@ -10,5 +10,8 @@
 - https://github.com/neuman/vreticle - accelerometer doesn't work?
 - https://github.com/immersive-web/webvr-polyfill - accelerometer seems to be working ok, use this
 
+## Hardware
+You can use any iPhone or Android device inside of a Google Cardboard headset. To purchase, see [here](https://www.amazon.com/dp/B07G6Z578H/ref=twister_B07QFHF9BN?_encoding=UTF8&psc=1) or similar.
+
 ## Development
 - [ ]
