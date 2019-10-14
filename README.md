@@ -14,4 +14,14 @@
 You can use any iPhone or Android device inside of a Google Cardboard headset. To purchase, see [here](https://www.amazon.com/dp/B07G6Z578H/ref=twister_B07QFHF9BN?_encoding=UTF8&psc=1) or similar.
 
 ## Development
-- [ ]
+You can set up a cube map background texture like so:
+https://threejsfundamentals.org/threejs/lessons/threejs-backgrounds.html
+
+Note that the scene uses a weird coordinate system, where the X/Z plane is the ground and what you'd think would be world Z is really mapped as positive Y. Therefore the order of texture laoding for the cube map has to be adjusted.
+
+A plain ground plane
+see about quaternions / transform method
+
+sound
+use https://threejs.org/docs/#api/en/audio/PositionalAudio
+unfortunately you have to explicly unlock the web audio api through a user action on ios - see about how to do this?

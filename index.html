@@ -67,6 +67,7 @@ document.addEventListener('touchmove', function(e) {
 </script>
 
 <!-- three.js library -->
+
 <script src="lib/three.js/three.js"></script>
 
 <!-- VRControls.js applies the WebVR transformations to a three.js camera object. -->
@@ -118,8 +119,10 @@ document.body.appendChild(canvas);
 // Create a three.js scene.
 var scene = new THREE.Scene();
 
-// Create a three.js camera.
+// Create a three.js camera, with an AudioListener for sound
 var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
+// var listener = new THREE.AudioListener();
+// camera.add( listener );
 
 // Create a reticle
 var reticle = new THREE.Mesh(
@@ -137,35 +140,84 @@ effect.setSize(canvas.clientWidth, canvas.clientHeight, false);
 var vrDisplay, controls;
 
 // Add a repeating grid as a skybox.
-var boxWidth = 5;
+// var boxWidth = 5;
+
+// create the PositionalAudio object (passing in the listener)
+// var sound = new THREE.PositionalAudio( listener );
+
+// load a sound and set it as the PositionalAudio object's buffer
+// var audioLoader = new THREE.AudioLoader();
+//
+// function playSound() {
+//   audioLoader.load( 'sound/sound.mp3', function( buffer ) {
+//   	sound.setBuffer( buffer );
+//   	sound.setRefDistance( 20 );
+//   	sound.play();
+//   });
+// }
+//
+// window.addEventListener('touchstart', playSound);
+// document.addEventListener('click', playSound);
 
 // Create 3D objects.
 var geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
 var material = new THREE.MeshNormalMaterial();
 var cube = new THREE.Mesh(geometry, material);
 
+
 // Position cube
-cube.position.z = -1;
+cube.position.z = 1;
 
 // Add cube mesh to your three.js scene
 scene.add(cube);
 
+// ground plane
+const groundMat = new THREE.LineBasicMaterial( {
+	color: 0x85d94b,
+	linewidth: 1,
+	linecap: 'round', //ignored by WebGLRenderer
+	linejoin:  'round' //ignored by WebGLRenderer
+} );
+const quaternion = new THREE.Quaternion();
+quaternion.setFromAxisAngle( new THREE.Vector3( -1, 0, 0 ), Math.PI / 2 );
+const groundPlaneGeo = new THREE.PlaneGeometry(1000 , 1000 )
+const groundPlane = new THREE.Mesh(groundPlaneGeo, groundMat);
+groundPlane.applyQuaternion(quaternion);
+groundPlane.position.y = -0.25
+scene.add(groundPlane);
+
 // Load the skybox texture and cube
-var loader = new THREE.TextureLoader();
-loader.load('img/box.png', onTextureLoaded);
-function onTextureLoaded(texture) {
-  texture.wrapS = THREE.RepeatWrapping;
-  texture.wrapT = THREE.RepeatWrapping;
-  texture.repeat.set(boxWidth, boxWidth);
-  var geometry = new THREE.BoxGeometry(boxWidth, boxWidth, boxWidth);
-  var material = new THREE.MeshBasicMaterial({
-    map: texture,
-    color: 0x01BE00,
-    side: THREE.BackSide
-  });
-  var skybox = new THREE.Mesh(geometry, material);
-  scene.add(skybox);
-}
+// var loader = new THREE.TextureLoader();
+// loader.load('img/box.png', onTextureLoaded);
+// function onTextureLoaded(texture) {
+//   //texture.wrapS = THREE.RepeatWrapping;
+//   //texture.wrapT = THREE.RepeatWrapping;
+//   //texture.repeat.set(boxWidth, boxWidth);
+//   var geometry = new THREE.BoxGeometry(boxWidth, boxWidth, boxWidth);
+//   var material = new THREE.MeshBasicMaterial({
+//     map: texture,
+//     color: 0x01BE00,
+//     side: THREE.BackSide
+//   });
+//   var skybox = new THREE.Mesh(geometry, material);
+//   scene.add(skybox);
+// }
+
+// custom skybox following threejsfundamentals
+const loader = new THREE.CubeTextureLoader()
+const skyTexture = loader.load([
+  'img/daylight/skybox_Right.jpg',
+  'img/daylight/skybox_Left.jpg',
+  'img/daylight/skybox_Top.jpg',
+  'img/daylight/skybox_Bottom.jpg',
+  'img/daylight/skybox_Front.jpg',
+  'img/daylight/skybox_Back.jpg'
+])
+scene.background = skyTexture;
+
+// scene fog
+scene.fog = new THREE.Fog('white', 0.1, 2)
+
 
 // The polyfill provides this in the event this browser
 // does not support WebVR 1.1
