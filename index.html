@@ -83,6 +83,36 @@ document.addEventListener('touchmove', function(e) {
 
 
 <script>
+// request accelerometer (ios 13)
+const vrButton = document.getElementById('vr')
+
+vrButton.addEventListener('click', function () {
+  if (typeof DeviceMotionEvent.requestPermission === 'function') {
+    DeviceMotionEvent.requestPermission()
+    .then(response => {
+      if (response == 'granted') {
+        window.addEventListener('devicemotion', (e) => {
+          // do something with e
+        })
+      }
+    })
+    .catch(console.error)
+
+    DeviceOrientationEvent.requestPermission()
+    .then(response => {
+      if (response == 'granted') {
+        window.addEventListener('deviceorientation', (e) => {
+          // do something with e
+        })
+      }
+    })
+    .catch(console.error)
+  } else {
+    console.log('not ios 13')
+    // non iOS 13+
+  }
+})
+
 // Get config from URL
 var config = (function() {
   var config = {};
