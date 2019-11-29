@@ -1,20 +1,3 @@
-<!--
-/*
- * Copyright 2017 Google Inc. All Rights Reserved.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
--->
-
 <!DOCTYPE html>
 
 <html lang="en">
@@ -67,8 +50,8 @@ document.addEventListener('touchmove', function(e) {
 </script>
 
 <!-- three.js library -->
-
 <script src="lib/three.js/three.js"></script>
+<script src="lib/three.js/GLTFLoader.js"></script>
 
 <!-- VRControls.js applies the WebVR transformations to a three.js camera object. -->
 <script src="lib/three.js/VRControls.js"></script>
@@ -111,6 +94,8 @@ vrButton.addEventListener('click', function () {
     console.log('not ios 13')
     // non iOS 13+
   }
+  // also, on the same click, set up audio context
+  const context = new AudioContext();
 })
 
 // Get config from URL
@@ -151,8 +136,8 @@ var scene = new THREE.Scene();
 
 // Create a three.js camera, with an AudioListener for sound
 var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
-// var listener = new THREE.AudioListener();
-// camera.add( listener );
+var listener = new THREE.AudioListener();
+camera.add( listener );
 
 // Create a reticle
 var reticle = new THREE.Mesh(
@@ -173,27 +158,26 @@ var vrDisplay, controls;
 // var boxWidth = 5;
 
 // create the PositionalAudio object (passing in the listener)
-// var sound = new THREE.PositionalAudio( listener );
+var sound = new THREE.PositionalAudio(listener);
 
 // load a sound and set it as the PositionalAudio object's buffer
-// var audioLoader = new THREE.AudioLoader();
-//
-// function playSound() {
-//   audioLoader.load( 'sound/sound.mp3', function( buffer ) {
-//   	sound.setBuffer( buffer );
-//   	sound.setRefDistance( 20 );
-//   	sound.play();
-//   });
-// }
-//
-// window.addEventListener('touchstart', playSound);
-// document.addEventListener('click', playSound);
+var audioLoader = new THREE.AudioLoader();
+
+function playSound() {
+  audioLoader.load( 'sound/sound.mp3', function( buffer ) {
+  	sound.setBuffer( buffer );
+  	sound.setRefDistance( 20 );
+  	sound.play();
+  });
+}
+
+window.addEventListener('touchstart', playSound);
+document.addEventListener('click', playSound);
 
 // Create 3D objects.
 var geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
 var material = new THREE.MeshNormalMaterial();
 var cube = new THREE.Mesh(geometry, material);
-
 
 // Position cube
 cube.position.z = 1;
@@ -214,7 +198,7 @@ const groundPlaneGeo = new THREE.PlaneGeometry(1000 , 1000 )
 const groundPlane = new THREE.Mesh(groundPlaneGeo, groundMat);
 groundPlane.applyQuaternion(quaternion);
 groundPlane.position.y = -0.25
-scene.add(groundPlane);
+//scene.add(groundPlane);
 
 // Load the skybox texture and cube
 // var loader = new THREE.TextureLoader();
@@ -246,7 +230,7 @@ const skyTexture = loader.load([
 scene.background = skyTexture;
 
 // scene fog
-scene.fog = new THREE.Fog('white', 0.1, 2)
+// scene.fog = new THREE.Fog('white', 0.1, 2)
 
 
 // The polyfill provides this in the event this browser
@@ -351,6 +335,50 @@ function enterFullscreen (el) {
     el.msRequestFullscreen();
   }
 }
+
+// load gltf file from blender
+const meshloader = new THREE.GLTFLoader()
+
+// Optional: Provide a DRACOLoader instance to decode compressed mesh data
+// var dracoLoader = new THREE.DRACOLoader();
+// dracoLoader.setDecoderPath( '/examples/js/libs/draco' );
+// loader.setDRACOLoader( dracoLoader );
+
+// Load a glTF resource
+meshloader.load(
+	// resource URL
+	'mesh/scene.gltf',
+	// called when the resource is loaded
+	function ( gltf ) {
+    console.log(gltf)
+    gltf.scene.name = "blenderimport"
+    gltf.scene.position.x = -0.5;
+    gltf.scene.position.y = 0;
+    gltf.scene.position.z = -2;
+    gltf.scene.scale.set(0.1, 0.1, 0.1)
+		scene.add( gltf.scene );
+
+		// gltf.animations; // Array<THREE.AnimationClip>
+		// gltf.scene; // THREE.Scene
+		// gltf.scenes; // Array<THREE.Scene>
+		// gltf.cameras; // Array<THREE.Camera>
+		// gltf.asset; // Object
+
+	},
+	// called while loading is progressing
+	function ( xhr ) {
+
+		console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+
+	},
+	// called when loading has errors
+	function ( error ) {
+
+		console.log( 'An error happened' );
+
+	}
+);
+
 
 </script>
 
